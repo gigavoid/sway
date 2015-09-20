@@ -3,7 +3,8 @@ var Promise     = require('bluebird'),
     Bot         = require('./models/bot'),
     MongoError  = require('mongoose/lib/error'),
     spawn       = require('child_process').spawn,
-    request     = require('request'),
+    request     = require('request-promise'),
+    ts3mb       = require('./ts3mb'),
     _           = require('lodash');
 
 function PostError(field, message) {
@@ -15,7 +16,7 @@ PostError.prototype = new Error();
 var api = module.exports = new express.Router();
 
 function auth(key, cb) {
-    request({
+    return request({
         url: 'http://accounts-api.gigavoid.com/verify',
         method: 'POST',
         json: true,
@@ -25,8 +26,8 @@ function auth(key, cb) {
         body:{
             key: key
         }
-    }, function (err, res) {
-        console.log(res.body, res.status);
+    }).then(function (body) {
+        return body;
     });
 }
 
@@ -88,21 +89,12 @@ function validationErrorHandler(res) {
  * }
  */
 api.post('/createBot', function (req, res) {
-    auth(req.body.key, function() {
-            
-    });
-    // docker run --rm -it -e SERVER=ts3server://ts.ineentho.com -e NAME=LaggigMusicBot -e WEBSITE="https://www.youtube.com/watch?v=sFukyIIM1XI" -p 5900:5900 ts3mb
-    var child = spawn('docker', [
-      'run', '--rm', '-i', '-e', 'SERVER=ts3server://' + req.body.server, '-l=mb=true', '-e', 'NAME=LaggigMusicBot', '-e', 'WEBSITE="https://www.youtube.com/watch?v=sFukyIIM1XI"',
-        'ineentho/ts3mb'
-    ]);
-/*
-    child.stdout.on('data', function(chunk) {
-        console.log('d', chunk.toString());
-    });
-
-    child.stderr.on('data', function(chunk) {
-        console.log('e', chunk.toString());
-    });*/
+    auth(req.body.key).then(function (user) {
+        ts3mb.run(req.body.server, user.username + '\'s%20bot', function(bot) {
+            console.log('bot reated', bot);
+        });
+     })
+    .catch(PostError, postErrorHandler(res))
+    .catch(genericErrorHandler(res));
 });
 

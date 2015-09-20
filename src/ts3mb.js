@@ -55,6 +55,7 @@ ts3mb.run = function(server, name, cb) {
             'mb': 'true'
         }
     }, function (err, data, container) {
+        log('bot stopped', bot.niceId);
         bot.stopped();
     });
 
