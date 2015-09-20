@@ -2,6 +2,8 @@ var Promise     = require('bluebird'),
     express     = require('express'),
     Bot         = require('./models/bot'),
     MongoError  = require('mongoose/lib/error'),
+    spawn       = require('child_process').spawn,
+    request     = require('request'),
     _           = require('lodash');
 
 function PostError(field, message) {
@@ -11,6 +13,22 @@ function PostError(field, message) {
 PostError.prototype = new Error();
 
 var api = module.exports = new express.Router();
+
+function auth(key, cb) {
+    request({
+        url: 'http://accounts-api.gigavoid.com/verify',
+        method: 'POST',
+        json: true,
+        headers: {
+            'content-type': 'application/json'
+        },
+        body:{
+            key: key
+        }
+    }, function (err, res) {
+        console.log(res.body, res.status);
+    });
+}
 
 function getDeviceInfo(req) {
     var agent = useragent.lookup(req.headers['user-agent']);
@@ -58,100 +76,33 @@ function validationErrorHandler(res) {
 }
 
 /**
- * HTTP POST /register
+ * HTTP POST /api/createBot
  * {
- *      username: String,
- *      password: String
+ *      server: String,
+ *      key: String
  * }
  *
  * Response:
  * {
- *      key: String
+ *     botId: String
  * }
  */
-api.post('/register', function (req, res) {
-    Promise.try(function() {
-        if (!req.body.username) throw new PostError('username', 'No username specified');
-        if (!req.body.password) throw new PostError('password', 'No password specified');
+api.post('/createBot', function (req, res) {
+    auth(req.body.key, function() {
+            
+    });
+    // docker run --rm -it -e SERVER=ts3server://ts.ineentho.com -e NAME=LaggigMusicBot -e WEBSITE="https://www.youtube.com/watch?v=sFukyIIM1XI" -p 5900:5900 ts3mb
+    var child = spawn('docker', [
+      'run', '--rm', '-i', '-e', 'SERVER=ts3server://' + req.body.server, '-l=mb=true', '-e', 'NAME=LaggigMusicBot', '-e', 'WEBSITE="https://www.youtube.com/watch?v=sFukyIIM1XI"',
+        'ineentho/ts3mb'
+    ]);
+/*
+    child.stdout.on('data', function(chunk) {
+        console.log('d', chunk.toString());
+    });
 
-    }).then(function() {
-        // step1: Create a new account object
-        return Account.register(req.body.username, req.body.password)
-    }).then(function (account) {
-        // step2: Authenticate right away in order to save a roundtrip to the server
-        return [account, account.auth(req.body.password, getDeviceInfo(req))];
-    }).spread(function (account, auth) {
-        // step3: Save the collection. Throws an exception if the data is invalid
-        return [account.trySave(), auth];
-    }).spread(function (account, auth) {
-        // step4: If the data was correct, send response
-        return res.send({
-            key: auth.key
-        });
-    })
-    .catch(MongoError.ValidationError, validationErrorHandler(res))
-    .catch(PostError, postErrorHandler(res))
-    .catch(genericErrorHandler(res));
+    child.stderr.on('data', function(chunk) {
+        console.log('e', chunk.toString());
+    });*/
 });
 
-/**
- * HTTP POST /login
- * {
- *      username: String,
- *      password: String
- * }
- *
- * Response: {
- *      key: String
- * }
- */
-api.post('/login', function (req, res) {
-    Account.findOne({username: req.body.username}).then(function(account) {
-        return [account, account.auth(req.body.password, getDeviceInfo(req))];
-    }).spread(function (account, auth) {
-        return [account.trySave(), auth];
-    }).spread(function (account, auth) {
-        return res.send({
-            key: auth.key
-        });
-    })
-    .catch(MongoError.ValidationError, validationErrorHandler(res))
-    .catch(genericErrorHandler(res));
-});
-
-/**
- * HTTP POST /verify
- * {
- *      key: String
- * }
- *
- * Response: {
- *      username: String
- * }
- */
-api.post('/verify', function (req, res) {
-    Account.findOne({'devices.key': req.body.key}).then(function (account) {
-        return res.send({
-            username: account.username
-        });
-    })
-    .catch(MongoError.ValidationError, validationErrorHandler(res))
-    .catch(genericErrorHandler(res));
-});
-
-
-/**
- * HTTP POST /emailtaken
- * {
- *      email: String
- * }
- */
-api.post('/emailtaken', function (req, res) {
-    Account.findOne({username: req.body.email}).then(function (account) {
-        return res.send({
-            taken: (!!account)
-        });
-    })
-    .catch(MongoError.ValidationError, validationErrorHandler(res))
-    .catch(genericErrorHandler(res));
-});
