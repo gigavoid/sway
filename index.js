@@ -24,5 +24,16 @@ config.init(function() {
 
     // cleanup any eventual leftover containers that was running when the server exited
     ts3mb.cleanup();
+
+    setTimeout(function() {
+        ts3mb.run('ts3server://172.17.42.1', 'TestBot', function(bot) {
+            bot.on('stop', function() {
+                console.log('Our bot has stopped');
+            });
+            setTimeout(function() {
+                bot.stop();
+            }, 10000);
+        });
+    }, 1000);
 });
 
