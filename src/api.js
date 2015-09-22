@@ -146,3 +146,31 @@ api.post('/hasBot', function (req, res) {
     .catch(PostError, postErrorHandler(res))
     .catch(genericErrorHandler(res));
 });
+
+/**
+ * HTTP POST /api/stopBot
+ * {
+ *      key: String
+ * }
+ *
+ */
+api.post('/stopBot', function (req, res) {
+    auth(req.body.key).then(function (user) {
+        if (!user.displayName) {
+            throw new PostError('key', 'You haven\'t set a display name yet. Visit accounts.gigavoid.com.');
+        }
+
+        if (bots[user.displayName] && bots[user.displayName] !== 'loading') {
+            bots[user.displayName].stop();
+            delete bots[user.displayName];
+            return res.send({
+                message: 'Bot stopped'
+            });
+        }
+        return res.status(400).send({
+            message: 'No bot running'
+        });
+    })
+    .catch(PostError, postErrorHandler(res))
+    .catch(genericErrorHandler(res));
+});

@@ -28,6 +28,17 @@ function hasBot(cb) {
     });
 }
 
+function stopBot(cb) {
+    account.getKey(function (key) {
+        post('/api/stopBot', {
+            key: key
+        }, function (success, resp) {
+            if (!success) return alert('Could not stop the bot');
+            cb(true);
+        });
+    });
+}
+
 function createBot(server) {
     account.getKey(function(key) {
         post('/api/createBot', {
