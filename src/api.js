@@ -101,7 +101,7 @@ api.post('/createBot', function (req, res) {
             });
         }
         bots[user.displayName] = 'loading';
-        ts3mb.run(req.body.server, user.displayName + '\'s%20bot', function(err, bot) {
+        ts3mb.run('ts3server://' + req.body.server, user.displayName + '\'s%20bot', function(err, bot) {
             if (err) {
                 res.status(400).send({
                     message: 'Could not create bot'
@@ -111,7 +111,8 @@ api.post('/createBot', function (req, res) {
             }
             bots[user.displayName] = bot;
             res.send({
-                message: 'Bot created'
+                message: 'Bot created',
+                botId: user.displayName
             });
         });
      })
@@ -128,7 +129,8 @@ api.post('/createBot', function (req, res) {
  *
  * Response:
  * {
- *      hasBot: Boolean
+ *      hasBot: Boolean,
+ *      botId: String
  * }
  */
 api.post('/hasBot', function (req, res) {
@@ -137,7 +139,8 @@ api.post('/hasBot', function (req, res) {
             throw new PostError('key', 'You haven\'t set a display name yet. Visit accounts.gigavoid.com.');
         }
         res.send({
-            hasBot: !!bots[user.displayName]
+            hasBot: !!bots[user.displayName],
+            botId: user.displayName
         });
     })
     .catch(PostError, postErrorHandler(res))

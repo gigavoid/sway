@@ -4,7 +4,8 @@ var express     = require('express'),
     bodyParser  = require('body-parser'),
     config      = require('./src/configLoader.js'),
     ts3mb       = require('./src/ts3mb'),
-    api         = require('./src/api');
+    api         = require('./src/api'),
+    routes      = require('./src/routes');
 
 config.init(function() {
     mongoose.connect(config.get('mongo'));
@@ -15,6 +16,7 @@ config.init(function() {
     app.use(express.static('static'));
 
     app.use('/api/', api);
+    app.use('/', routes);
 
     var server = app.listen(config.get('port'), function() {
         var addr = server.address();
