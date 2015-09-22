@@ -22,6 +22,7 @@ var ts3mb = module.exports = {};
  */
 ts3mb.cleanup = function() {
     docker.listContainers(function (err, containers) {
+        if (err) return console.log('Could not connect to the docker daemon');
         log('found ' + containers.length + ' docker container(s)');
         containers.forEach(function (containerInfo) {
             if (containerInfo.Labels && containerInfo.Labels.mb) {
@@ -55,6 +56,7 @@ ts3mb.run = function(server, name, cb) {
             'mb': 'true'
         }
     }, function (err, data, container) {
+        if (err) return cb(err);
         log('bot stopped', bot.niceId);
         bot.stopped();
     });
@@ -62,7 +64,7 @@ ts3mb.run = function(server, name, cb) {
     hub.on('container', function(container) {
         bot = new Ts3mb(container);
         log('bot created:', bot.niceId);
-        cb(bot);
+        cb(null, bot);
     });
 };
 

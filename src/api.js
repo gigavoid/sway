@@ -15,6 +15,8 @@ PostError.prototype = new Error();
 
 var api = module.exports = new express.Router();
 
+var bots = {};
+
 function auth(key, cb) {
     return request({
         url: 'http://accounts-api.gigavoid.com/verify',
@@ -90,11 +92,54 @@ function validationErrorHandler(res) {
  */
 api.post('/createBot', function (req, res) {
     auth(req.body.key).then(function (user) {
-        ts3mb.run(req.body.server, user.username + '\'s%20bot', function(bot) {
-            console.log('bot reated', bot);
+        if (!user.displayName) {
+            throw new PostError('key', 'You haven\'t set a display name yet. Visit accounts.gigavoid.com.');
+        }
+        if (bots[user.displayName]) {
+            return res.status(400).send({
+                message: 'You already have a music bot'
+            });
+        }
+        bots[user.displayName] = 'loading';
+        ts3mb.run(req.body.server, user.displayName + '\'s%20bot', function(err, bot) {
+            if (err) {
+                res.status(400).send({
+                    message: 'Could not create bot'
+                });
+                delete bots[user.displayName];
+                return console.log('could not create bot', err);
+            }
+            bots[user.displayName] = bot;
+            res.send({
+                message: 'Bot created'
+            });
         });
      })
     .catch(PostError, postErrorHandler(res))
     .catch(genericErrorHandler(res));
 });
 
+
+/**
+ * HTTP POST /api/hasBot
+ * {
+ *      key: String
+ * }
+ *
+ * Response:
+ * {
+ *      hasBot: Boolean
+ * }
+ */
+api.post('/hasBot', function (req, res) {
+    auth(req.body.key).then(function (user) {
+        if (!user.displayName) {
+            throw new PostError('key', 'You haven\'t set a display name yet. Visit accounts.gigavoid.com.');
+        }
+        res.send({
+            hasBot: !!bots[user.displayName]
+        });
+    })
+    .catch(PostError, postErrorHandler(res))
+    .catch(genericErrorHandler(res));
+});
