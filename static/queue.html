@@ -2,14 +2,24 @@
 <html>
     <head lang="en">
         <meta charset="UTF-8">
-        <title>Username's SwayBot Queue</title>
+        <title>SwayBot Queue</title>
         <link href="style.css" rel="stylesheet">
     </head>
     <body>
         <div class="main">
             <div class="bg"></div>
             <div class="scroll-left">
-                <p>Now playing: Jennifer Lopez - On The Floor ft. Pitbull</p>
+                <p id="banner">Now playing: Jennifer Lopez - On The Floor ft. Pitbull</p>
+            </div>
+            <div class="wrapper">
+                <input id="linkbox" type="text" placeholder="Youtube link to song" autofocus="true">
+                <button id="add">Add</button>
+                <div class="admin">
+                    <button id="playpause">Play/Pause</button>
+                    <button id="skip">Skip</button>
+                    <button id="restart">Restart Bot</button>
+                    <button id="stop">Stop Bot</button>
+                </div>
             </div>
             <div id='adminControls'>
                 <button id='botStop'>Stop bot</button>
@@ -17,14 +27,14 @@
             </div>
         </div>
         <div class="list">
-            <div class="listitem"></div>
-            <div class="listitem"></div>
-            <div class="listitem"></div>
-            <div class="listitem"></div>
-            <div class="listitem"></div>
-            <div class="listitem"></div>
-            <div class="listitem"></div>
-            <div class="listitem"></div>
+            <div class="listitem"><button id="removeSong1" class="removebtn"></button></div>
+            <div class="listitem"><button id="removeSong2" class="removebtn"></button></div>
+            <div class="listitem"><button id="removeSong3" class="removebtn"></button></div>
+            <div class="listitem"><button id="removeSong4" class="removebtn"></button></div>
+            <div class="listitem"><button id="removeSong5" class="removebtn"></button></div>
+            <div class="listitem"><button id="removeSong6" class="removebtn"></button></div>
+            <div class="listitem"><button id="removeSong7" class="removebtn"></button></div>
+            <div class="listitem"><button id="removeSong8" class="removebtn"></button></div>
         </div>
         <script src='/socket.io/socket.io.js'></script>
         <script src="//ajax.googleapis.com/ajax/libs/angularjs/1.4.6/angular.min.js"></script>

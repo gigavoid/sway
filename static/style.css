@@ -33,6 +33,21 @@ input[type=submit]:active{
     background-color: #cd6718;
 }
 
+button{
+    background-color: #e98017;
+    border-radius: 5px;
+    border: 1px solid #da7117;
+    outline: none;
+}
+
+button:hover{
+    background-color: #f88e17;
+}
+
+button:active{
+    background-color: #cd6718;
+}
+
 .bg{
     position: absolute;
     top: 50%;
@@ -53,6 +68,12 @@ input[type=submit]:active{
     top: 47%;
 }
 
+.admin{
+    margin: auto;
+    margin-top: 6px;
+    text-align: center;
+}
+
 .list{
     position: absolute;
     margin-left: -3px;
@@ -63,10 +84,22 @@ input[type=submit]:active{
 }
 
 .listitem{
+    position: relative;
     width: 100%;
     background: #323232;
     border-bottom: 1px solid black;
-    min-height: 25px;
+    min-height: 28px;
+}
+
+.removebtn{
+    position: absolute;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 0;
+    background-image: radial-gradient(red, #323232);
+    right: 0;
+    bottom: 0;
 }
 
 .main{
