@@ -5,6 +5,7 @@ var Promise     = require('bluebird'),
     spawn       = require('child_process').spawn,
     request     = require('request-promise'),
     ts3mb       = require('./ts3mb'),
+    queue       = require('./musicqueue'),
     _           = require('lodash');
 
 function PostError(field, message) {
@@ -16,6 +17,29 @@ PostError.prototype = new Error();
 var api = module.exports = new express.Router();
 
 var bots = {};
+
+function setBot(name, value) {
+    bots[name] = value;
+
+    if (typeof(value) !== 'string') {
+        // it is a real bot, not just "loading" or something along those lines
+        queue.createBot(name);
+    }
+}
+
+function removeBot(name) {
+    var bot = getBot(name);
+    if (typeof(bot) !== 'string') {
+        // it was a real bot
+        bot.stop();
+        queue.removeBot(name);
+    }
+    delete bots[name];
+}
+
+function getBot(name) {
+    return bots[name];
+}
 
 function auth(key, cb) {
     return request({
@@ -95,21 +119,21 @@ api.post('/createBot', function (req, res) {
         if (!user.displayName) {
             throw new PostError('key', 'You haven\'t set a display name yet. Visit accounts.gigavoid.com.');
         }
-        if (bots[user.displayName]) {
+        if (getBot(user.displayName)) {
             return res.status(400).send({
                 message: 'You already have a music bot'
             });
         }
-        bots[user.displayName] = 'loading';
+        setBot(user.displayName, 'loading');
         ts3mb.run('ts3server://' + req.body.server, user.displayName + '\'s%20bot', function(err, bot) {
             if (err) {
                 res.status(400).send({
                     message: 'Could not create bot'
                 });
-                delete bots[user.displayName];
+                removeBot(user.displayName);
                 return console.log('could not create bot', err);
             }
-            bots[user.displayName] = bot;
+            setBot(user.displayName, bot);
             res.send({
                 message: 'Bot created',
                 botId: user.displayName
@@ -139,7 +163,7 @@ api.post('/hasBot', function (req, res) {
             throw new PostError('key', 'You haven\'t set a display name yet. Visit accounts.gigavoid.com.');
         }
         res.send({
-            hasBot: !!bots[user.displayName],
+            hasBot: !!getBot(user.displayName),
             botId: user.displayName
         });
     })
@@ -159,10 +183,9 @@ api.post('/stopBot', function (req, res) {
         if (!user.displayName) {
             throw new PostError('key', 'You haven\'t set a display name yet. Visit accounts.gigavoid.com.');
         }
-
-        if (bots[user.displayName] && bots[user.displayName] !== 'loading') {
-            bots[user.displayName].stop();
-            delete bots[user.displayName];
+        var bot = getBot(user.displayName)
+        if (bot && bot !== 'loading') {
+            removeBot(user.displayName);
             return res.send({
                 message: 'Bot stopped'
             });

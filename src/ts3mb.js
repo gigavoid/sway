@@ -16,7 +16,6 @@ function log() {
 }
 
 var ts3mb = module.exports = {};
-
 /**
  * Kills all running ts3mb containers
  */
@@ -82,7 +81,6 @@ Ts3mb.prototype.stop = function() {
     this.container.remove({force: true}, function (err, data) {
         if (err)
             return log('could not kill bot container', self.niceId, ':', err);
-        log('killed bot container:', self.niceId);
     });
 }
 

@@ -4,6 +4,8 @@ var owner = window.location.pathname.substring(1);
 document.title = owner + '\'s SwayBot Queue';
 var isOwner;
 
+var songs = [];
+
 account.ready = function() {
     account.verify(function (loggedIn, acc) {
         isOwner = owner === acc.displayName;
@@ -12,7 +14,24 @@ account.ready = function() {
             document.querySelector('#adminControls').style.display = 'block';
         }
     });
-}
+
+
+    var socket = io();
+
+    socket.on('connect', function() {
+        socket.emit('subscribe', owner);
+        songs = [];
+    });
+
+    socket.on('no-bot', function() {
+        window.location = '/';
+    });
+
+    socket.on('new-song', function(_songs) {
+        songs = _songs;
+        console.log(songs);
+    });
+};
 
 document.querySelector('#botStop').addEventListener('click', function (e) {
     stopBot(function () {
