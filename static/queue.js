@@ -54,7 +54,7 @@ document.querySelector('#addSong').addEventListener('submit', function (e) {
 
     var song = document.querySelector('#linkbox').value;
     
-    var res = /\?v=([a-zA-Z0-9]*)/.exec(song);
+    var res = /\?v=([a-zA-Z0-9_-]*)/.exec(song);
     
     if (!res || res.length != 2) {
         return alert('Could not parse url');
