@@ -8,6 +8,7 @@ queue.start = function (_io) {
 
         log('client connected');
         socket.on('subscribe', function (channel) {
+            log('client subscribed');
             if (!queues[channel]) {
                 return socket.emit('no-bot');
             }
@@ -26,7 +27,7 @@ queue.createBot = function (botName, key) {
     };
 
     queues[botName].songs.push({
-        song: 'zJB_74Xl9aw',
+        song: 'Ip7QZPw04Ks',
         service: 'youtube'
     });
 };
@@ -51,10 +52,10 @@ queue.popSong = function (playerId, playerKey) {
 
     q.songs.shift();
     sendSongs(playerId);
-    
 }
 
 function sendSongs(botName) {
+    log('send songs', botName);
     var clients = queues[botName].clients;
     var songs = queues[botName].songs;
 

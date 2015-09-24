@@ -9,13 +9,18 @@ var key = split[3];
 var socket = io();
 
 socket.on('connect', function() {
+    console.log('Connected');
     socket.emit('subscribe', owner);
     songs = [];
 });
 
 socket.on('new-song', function(_songs) {
     songs = _songs;
-    console.log(songs);
+    console.log('new-song', songs);
+
+    if (!playing && ready) {
+        playNext();
+    }
 });
 
 function getNextSong() {
@@ -25,6 +30,38 @@ function getNextSong() {
 function popNextSong() {
     popSong(owner, parseInt(key));
 }
+
+function playNext() {
+    var song = getNextSong();
+    if (song) {
+        popNextSong();
+        play(song);
+    } else {
+        console.log('OUT OF SONGS');
+    }
+}
+
+var playing = false
+
+function play(id) {
+
+    playing = true;
+    console.log('PLAYING: TRUE', id.song);
+    if (player) {
+        player.loadVideoById(id.song);
+    } else {
+        player = new YT.Player('player', {
+            height: '390',
+            width: '640',
+            videoId: id.song,
+            events: {
+                'onReady': onPlayerReady,
+                'onStateChange': onPlayerStateChange
+            }
+        });
+    }
+}
+
 
 // 2. This code loads the IFrame Player API code asynchronously.
 var tag = document.createElement('script');
@@ -36,35 +73,27 @@ firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 // 3. This function creates an <iframe> (and YouTube player)
 //    after the API code downloads.
 var player;
+var ready = false;
 function onYouTubeIframeAPIReady() {
     console.log('youtube iframe ready');
-    player = new YT.Player('player', {
-        height: '390',
-        width: '640',
-        videoId: 'M7lc1UVf-VE',
-        events: {
-            'onReady': onPlayerReady,
-            'onStateChange': onPlayerStateChange
-        }
-    });
+    ready = true;
+    playNext();
 }
 
 // 4. The API will call this function when the video player is ready.
-    function onPlayerReady(event) {
-        event.target.playVideo();
+function onPlayerReady(event) {
+    console.log('player ready');
+    event.target.playVideo();
 }
 
 // 5. The API calls this function when the player's state changes.
 //    The function indicates that when playing a video (state=1),
 //    the player should play for six seconds and then stop.
-var done = false;
 function onPlayerStateChange(event) {
-    if (event.data == YT.PlayerState.PLAYING && !done) {
-        setTimeout(stopVideo, 6000);
-        done = true;
+    if (event.data == YT.PlayerState.ENDED) {
+        playing = false;
+        console.log('PLAYING: FALSE');
+        playNext();
     }
-}
-function stopVideo() {
-    player.stopVideo();
 }
 

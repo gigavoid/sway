@@ -128,7 +128,7 @@ api.post('/createBot', function (req, res) {
         setBot(user.displayName, 'loading');
         botKeys[user.displayName] = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
         console.log(botKeys[user.displayName]);
-        var url = 'https://www.youtube.com/watch?v=zJB_74Xl9aw';
+        var url = 'http://172.17.42.1:8000/player/' + user.displayName + '/' + botKeys[user.displayName];
         ts3mb.run('ts3server://' + req.body.server, user.displayName + '\'s%20bot', url, function(err, bot) {
             if (err) {
                 res.status(400).send({
