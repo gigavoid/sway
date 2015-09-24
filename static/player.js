@@ -12,11 +12,37 @@ socket.on('connect', function() {
     console.log('Connected');
     socket.emit('subscribe', owner);
     songs = [];
+
+    socket.emit('ts-player', {
+        name: owner,
+        key: parseInt(key)
+    });
 });
+
+socket.on('pause-toggle', pauseToggle);
+socket.on('skip', skip);
+
+var paused = false;
+
+function pauseToggle() {
+    paused = !paused;
+
+    if (paused) {
+        player.pauseVideo();
+    } else {
+        player.playVideo();
+    }
+}
+
+function skip() {
+    player.stopVideo();
+    playNext();
+}
 
 socket.on('new-song', function(_songs) {
     songs = _songs;
     console.log('new-song', songs);
+
 
     if (!playing && ready) {
         playNext();

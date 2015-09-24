@@ -15,14 +15,36 @@ queue.start = function (_io) {
             queues[channel].clients.push(socket);
             socket.emit('new-song', queues[channel].songs);
         });
+
+        socket.on('ts-player', function (obj) {
+            if (queues[obj.name] && queues[obj.name].key === obj.key) {
+                log('player authenticated for', obj.name);
+                queues[obj.name].player = socket;
+            } else {
+                log('authentication failed for', obj.name);
+            }
+        });
     });
 };
+
+queue.skip = function (botName) {
+    if (queues[botName] && queues[botName].player) {
+        queues[botName].player.emit('skip');
+    }
+}
+
+queue.pauseToggle = function (botName) {
+    if (queues[botName] && queues[botName].player) {
+        queues[botName].player.emit('pause-toggle');
+    }
+}
 
 queue.createBot = function (botName, key) {
     log('queue created:', botName);
     queues[botName] = {
         songs: [],
         clients: [],
+        player: null,
         key: key
     };
 

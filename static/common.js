@@ -70,6 +70,34 @@ function queueSong(song, cb) {
     });
 }
 
+function togglePause(cb) {
+    account.getKey(function(key) {
+        post('/api/togglePause', {
+            key: key
+        }, function (success, resp) {
+            if (success) {
+                cb && cb();
+            } else {
+                alert(JSON.stringify(resp));
+            }
+        });
+    });
+}
+
+function skipSong(cb) {
+    account.getKey(function(key) {
+        post('/api/skipSong', {
+            key: key
+        }, function (success, resp) {
+            if (success) {
+                cb && cb();
+            } else {
+                alert(JSON.stringify(resp));
+            }
+        });
+    });
+}
+
 function popSong(id, playerKey) {
     post('/api/popSong', {
         playerId: id,

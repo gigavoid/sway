@@ -230,6 +230,49 @@ api.post('/queueSong', function (req, res) {
 });
 
 /**
+ * HTTP POST /api/skipSong
+ * {
+ *      key: String
+ * }
+ *
+ */
+api.post('/skipSong', function (req, res) {
+    auth(req.body.key).then(function (user) {
+        if (!user.displayName) {
+            throw new PostError('key', 'You haven\'t set a display name yet. Visit accounts.gigavoid.com.');
+        }
+
+        queue.skip(user.displayName);
+        return res.send({
+            message: 'OK'
+        });
+    })
+    .catch(PostError, postErrorHandler(res))
+    .catch(genericErrorHandler(res));
+});
+
+/**
+ * HTTP POST /api/togglePause
+ * {
+ *      key: String
+ * }
+ *
+ */
+api.post('/togglePause', function (req, res) {
+    auth(req.body.key).then(function (user) {
+        if (!user.displayName) {
+            throw new PostError('key', 'You haven\'t set a display name yet. Visit accounts.gigavoid.com.');
+        }
+
+        queue.pauseToggle(user.displayName);
+        return res.send({
+            message: 'OK'
+        });
+    })
+    .catch(PostError, postErrorHandler(res))
+    .catch(genericErrorHandler(res));
+});
+/**
  * HTTP POST /api/popSong
  * {
  *      playerId: String,

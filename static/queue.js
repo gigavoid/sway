@@ -49,6 +49,9 @@ document.querySelector('#botRestart').addEventListener('click', function (e) {
     });
 });
 
+document.querySelector('#playpause').addEventListener('click', function() { togglePause(); });
+document.querySelector('#skip').addEventListener('click', function() { skipSong(); });
+
 document.querySelector('#addSong').addEventListener('submit', function (e) {
     e.preventDefault();
 
