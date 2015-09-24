@@ -13,6 +13,9 @@ account.ready = function() {
         if (isOwner) {
             document.querySelector('#adminControls').style.display = 'block';
         }
+
+        songList.isAdmin = isOwner;
+        scope.$apply();
     });
 
 
@@ -29,7 +32,8 @@ account.ready = function() {
 
     socket.on('new-song', function(_songs) {
         songs = _songs;
-        console.log(songs);
+        songList.list = songs;
+        scope.$apply();
     });
 };
 
@@ -44,3 +48,32 @@ document.querySelector('#botRestart').addEventListener('click', function (e) {
         createBot('ts.ineentho.com');
     });
 });
+
+document.querySelector('#addSong').addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    var song = document.querySelector('#linkbox').value;
+    
+    var res = /\?v=([a-zA-Z0-9]*)/.exec(song);
+    
+    if (!res || res.length != 2) {
+        return alert('Could not parse url');
+    }
+
+    var songId = res[1];
+    queueSong(songId, function() {
+        document.querySelector('#linkbox').value = '';
+    });
+});
+
+var songList;
+var scope;
+
+
+angular.module('songList', [])
+    .controller('SongListController', function($scope) {
+        scope = $scope;
+        songList = this;
+        songList.isAdmin = false;
+        songList.list = songs;
+    });

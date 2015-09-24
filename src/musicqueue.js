@@ -1,5 +1,3 @@
-var memoryStore = require('./memory-store');
-
 var queue = module.exports = {};
 
 var io, queues = {};
@@ -19,19 +17,18 @@ queue.start = function (_io) {
     });
 };
 
-queue.createBot = function (botName) {
+queue.createBot = function (botName, key) {
     log('queue created:', botName);
     queues[botName] = {
         songs: [],
-        clients: []
+        clients: [],
+        key: key
     };
 
-    setInterval(function() {
-        queue.queueSong(botName, {
-            service: 'youtube',
-            id: 'mTzbax2daKs'
-        });
-    }, 2000);
+    queues[botName].songs.push({
+        song: 'zJB_74Xl9aw',
+        service: 'youtube'
+    });
 };
 
 queue.removeBot = function (botName) {
@@ -45,6 +42,16 @@ queue.queueSong = function (botName, song) {
 
     sendSongs(botName);
     return true;
+}
+
+queue.popSong = function (playerId, playerKey) {
+    var q = queues[playerId];
+    if (!q) return log('tried to pop song from invalid player id', playerId);
+    if (q.key !== playerKey) return log('tried to pop song from invalid key', q.key);
+
+    q.songs.shift();
+    sendSongs(playerId);
+    
 }
 
 function sendSongs(botName) {

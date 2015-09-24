@@ -17,13 +17,14 @@ PostError.prototype = new Error();
 var api = module.exports = new express.Router();
 
 var bots = {};
+var botKeys = {};
 
 function setBot(name, value) {
     bots[name] = value;
 
     if (typeof(value) !== 'string') {
         // it is a real bot, not just "loading" or something along those lines
-        queue.createBot(name);
+        queue.createBot(name, botKeys[name]);
     }
 }
 
@@ -125,7 +126,10 @@ api.post('/createBot', function (req, res) {
             });
         }
         setBot(user.displayName, 'loading');
-        ts3mb.run('ts3server://' + req.body.server, user.displayName + '\'s%20bot', function(err, bot) {
+        botKeys[user.displayName] = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
+        console.log(botKeys[user.displayName]);
+        var url = 'https://www.youtube.com/watch?v=zJB_74Xl9aw';
+        ts3mb.run('ts3server://' + req.body.server, user.displayName + '\'s%20bot', url, function(err, bot) {
             if (err) {
                 res.status(400).send({
                     message: 'Could not create bot'
@@ -196,4 +200,45 @@ api.post('/stopBot', function (req, res) {
     })
     .catch(PostError, postErrorHandler(res))
     .catch(genericErrorHandler(res));
+});
+
+/**
+ * HTTP POST /api/queueSong
+ * {
+ *      song: String,
+ *      service: String,
+ *      key: String
+ * }
+ *
+ */
+api.post('/queueSong', function (req, res) {
+    auth(req.body.key).then(function (user) {
+        if (!user.displayName) {
+            throw new PostError('key', 'You haven\'t set a display name yet. Visit accounts.gigavoid.com.');
+        }
+        if(queue.queueSong(user.displayName, {service: req.body.service, song: req.body.song})) {
+            return res.send({
+                message: 'Song queued'
+            });
+        }
+        return res.status(400).send({
+            message: 'Could not queue song'
+        });
+    })
+    .catch(PostError, postErrorHandler(res))
+    .catch(genericErrorHandler(res));
+});
+
+/**
+ * HTTP POST /api/popSong
+ * {
+ *      playerId: String,
+ *      playerKey: String,
+ * }
+ *
+ */
+api.post('/popSong', function (req, res) {
+    res.send({
+        success: queue.popSong(req.body.playerId, req.body.playerKey)
+    });
 });

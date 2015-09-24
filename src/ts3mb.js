@@ -42,14 +42,15 @@ ts3mb.cleanup = function() {
  * Start a new TeamSpeak Bot.
  * Callback signature: (err, ts3mb)
  */
-ts3mb.run = function(server, name, cb) {
+ts3mb.run = function(server, name, site, cb) {
     var wstream = fs.createWriteStream('debug.txt');
     var bot;
 
     var hub = docker.run('ineentho/ts3mb', ['./run'], wstream, {
         Env: [
             'SERVER=' + server,
-            'NAME=' + name
+            'NAME=' + name,
+            'WEBSITE=' + site
         ],
         Labels: {
             'mb': 'true'

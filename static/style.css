@@ -68,10 +68,11 @@ button:active{
     top: 47%;
 }
 
-.admin{
+#adminControls{
     margin: auto;
     margin-top: 6px;
     text-align: center;
+    display: none;
 }
 
 .list{

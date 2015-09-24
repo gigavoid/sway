@@ -53,3 +53,28 @@ function createBot(server) {
         });
     });
 }
+
+function queueSong(song, cb) {
+    account.getKey(function(key) {
+        post('/api/queueSong', {
+            song: song,
+            service: 'youtube',
+            key: key
+        }, function (success, resp) {
+            if (success) {
+                cb();
+            } else {
+                alert(JSON.stringify(resp));
+            }
+        });
+    });
+}
+
+function popSong(id, playerKey) {
+    post('/api/popSong', {
+        playerId: id,
+        playerKey: playerKey
+    }, function (success, resp) {
+        console.log(success, resp);
+    });
+}
