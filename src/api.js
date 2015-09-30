@@ -207,16 +207,13 @@ api.post('/stopBot', function (req, res) {
  * {
  *      song: String,
  *      service: String,
- *      key: String
+ *      channel: String
  * }
  *
  */
 api.post('/queueSong', function (req, res) {
-    auth(req.body.key).then(function (user) {
-        if (!user.displayName) {
-            throw new PostError('key', 'You haven\'t set a display name yet. Visit accounts.gigavoid.com.');
-        }
-        if(queue.queueSong(user.displayName, {service: req.body.service, song: req.body.song})) {
+    Promise.try(function () {
+        if(queue.queueSong(req.body.channel, {service: req.body.service, song: req.body.song})) {
             return res.send({
                 message: 'Song queued'
             });

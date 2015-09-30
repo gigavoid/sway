@@ -64,7 +64,7 @@ document.querySelector('#addSong').addEventListener('submit', function (e) {
     }
 
     var songId = res[1];
-    queueSong(songId, function() {
+    queueSong(songId, owner, function() {
         document.querySelector('#linkbox').value = '';
     });
 });

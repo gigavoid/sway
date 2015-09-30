@@ -54,19 +54,17 @@ function createBot(server) {
     });
 }
 
-function queueSong(song, cb) {
-    account.getKey(function(key) {
-        post('/api/queueSong', {
-            song: song,
-            service: 'youtube',
-            key: key
-        }, function (success, resp) {
-            if (success) {
-                cb();
-            } else {
-                alert(JSON.stringify(resp));
-            }
-        });
+function queueSong(song, channel, cb) {
+    post('/api/queueSong', {
+        song: song,
+        service: 'youtube',
+        channel: channel
+    }, function (success, resp) {
+        if (success) {
+            cb();
+        } else {
+            alert(JSON.stringify(resp));
+        }
     });
 }
 
