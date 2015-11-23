@@ -8,6 +8,7 @@ function init(cb) {
 
     nconf.set('port', '3000');
     nconf.set('mongo', 'mongodb://localhost/gigavoid-sway');
+    nconf.set('auth_url', 'http://accounts-api.gigavoid.com/verify');
 
     nconf.save(function (err) {
         if (err) {

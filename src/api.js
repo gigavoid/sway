@@ -14,8 +14,9 @@ function PostError(field, message) {
 }
 PostError.prototype = new Error();
 
-var api = module.exports = new express.Router();
+var api = new express.Router();
 
+var config;
 var bots = {};
 var botKeys = {};
 
@@ -44,7 +45,7 @@ function getBot(name) {
 
 function auth(key, cb) {
     return request({
-        url: 'http://accounts-api.gigavoid.com/verify',
+        url: config.get('auth_url'),
         method: 'POST',
         json: true,
         headers: {
@@ -282,3 +283,8 @@ api.post('/popSong', function (req, res) {
         success: queue.popSong(req.body.playerId, req.body.playerKey)
     });
 });
+
+module.exports = function(_config) {
+    config = _config;
+    return api;
+}

@@ -21,7 +21,7 @@ config.init(function() {
     app.use(bodyParser.json());
     app.use(express.static('static'));
 
-    app.use('/api/', api);
+    app.use('/api/', api(config));
     app.use('/', routes);
 
     var server = httpServer.listen(config.get('port'), function() {
