@@ -8,6 +8,7 @@ routes.get('/:username', function (req, res) {
 });
 
 routes.get('/player/:owner/:key', function (req, res) {
+    console.log('Player opened by bot');
     return res.sendFile(path.resolve('./static/player.html'));
 });
 

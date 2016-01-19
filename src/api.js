@@ -130,6 +130,7 @@ api.post('/createBot', function (req, res) {
         botKeys[user.displayName] = Math.floor(Math.random() * Number.MAX_SAFE_INTEGER);
         console.log(botKeys[user.displayName]);
         var url = 'http://' + config.get('sway_host') + '/player/' + user.displayName + '/' + botKeys[user.displayName];
+        console.log('Open ' + url);
         ts3mb.run('ts3server://' + req.body.server, user.displayName + '\'s%20bot', url, function(err, bot) {
             if (err) {
                 res.status(400).send({
