@@ -2,7 +2,7 @@
 
     docker run --name sway -p 15002:3000 -d --link gv-mongo:mongo
      -e "mongo=mongodb://mongo/gigavoid-sway" -e "sway_host=sway.gigavoid.com"
-      -v /var/run/docker.sock:/var/run/docker.sock gigavoid/sway
+     -v /var/run/docker.sock:/var/run/docker.sock gigavoid/sway
   
 ## gigavoid/accounts-api
     
