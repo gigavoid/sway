@@ -1,6 +1,26 @@
+var google = require('googleapis');
+
+var youtube = google.youtube({
+    version: 'v3',
+    auth: process.env.GOOGLE_API_KEY
+})
+
 var queue = module.exports = {};
 
 var io, queues = {};
+
+function getRelated(videoId, cb) {
+    youtube.search.list({
+        part: 'snippet',
+        relatedToVideoId: videoId,
+        maxResults: 1,
+        type: 'video'
+    }, function (err, data) {
+        if (err) { return cb (err); }
+
+        cb(null, data.items[0].id.videoId)
+    })
+}
 
 queue.start = function (_io) {
     io = _io;
@@ -45,7 +65,8 @@ queue.createBot = function (botName, key) {
         songs: [],
         clients: [],
         player: null,
-        key: key
+        key: key,
+        log: []
     };
 
     queues[botName].songs.push({
@@ -63,17 +84,64 @@ queue.queueSong = function (botName, song) {
     if (!queues[botName]) return false;
     queues[botName].songs.push(song);
 
+    addLog(botName  , {type: 'added-queue', song});
+
     sendSongs(botName);
     return true;
 }
 
-queue.popSong = function (playerId, playerKey) {
+queue.popSong = function (playerId, playerKey, cb) {
     var q = queues[playerId];
     if (!q) return log('tried to pop song from invalid player id', playerId);
     if (q.key !== playerKey) return log('tried to pop song from invalid key', q.key);
 
-    q.songs.shift();
-    sendSongs(playerId);
+
+    var popped = q.songs.shift();
+    console.log('popped song', popped);
+
+    if (popped) {
+        q.currentSong = popped;
+        sendSongs(playerId);
+        cb(popped);
+        addLog(playerId, {type: 'playing-song', popped});
+
+        return;
+    }
+
+    if (q.autoPlay && q.currentSong) {
+        console.log('Autoplaying');
+        
+        getRelated(q.currentSong.song, function (err, id) {
+            var song = {
+                song: id,
+                service: 'youtube'
+            };
+            q.songs.push(song);
+
+            addLog(playerId, {type: 'added-youtube-autoplay', song, from: q.currentSong});
+
+            return queue.popSong(playerId, playerKey, cb);
+        });
+    }
+}
+
+queue.setAutoplay = function (botName, enabled) {
+    console.log('setAutoplay', botName);
+    if (queues[botName]) {
+        queues[botName].autoPlay = enabled;
+        sendStatus(botName);
+        sendSongs(botName);
+    }
+}
+
+function addLog (botName, obj) {
+    var q = queues[botName];
+
+    if (q) {
+        q.log.push(obj);
+
+        sendStatus(botName);
+    }
 }
 
 function sendSongs(botName) {
@@ -85,6 +153,28 @@ function sendSongs(botName) {
         var client = clients[i];
         client.emit('new-song', songs);
     }
+}
+
+queue.getStatus = function (botName) {
+    console.log('getstatus', botName)
+    var queue = queues[botName];
+
+    return {
+        autoPlay: queue.autoPlay,
+        log: queue.log
+    };
+}
+
+function sendStatus(botName) {
+    var q = queues[botName];
+
+    var clients = q.clients;
+
+    var settings = queue.getStatus(botName);
+
+    clients.forEach(function (client) {
+        client.emit('status-update', settings);
+    });
 }
 
 function log() {

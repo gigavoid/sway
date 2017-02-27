@@ -9,6 +9,17 @@ body{
     height: 100%;
 }
 
+.action-log {
+    font-size: 12px;
+    height: 300px;
+    background: rgba(0, 0, 0, .1);
+    overflow-y: scroll;
+    color: white;
+    max-width: 900px;
+    margin: 0 auto;
+    margin-top: 10px;    
+}
+
 input{
     border-radius: 5px;
     border: 1px solid #da7117;
@@ -46,6 +57,10 @@ button:hover{
 
 button:active{
     background-color: #cd6718;
+}
+
+.list-controls {
+    color: white;
 }
 
 .bg{

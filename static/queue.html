@@ -22,10 +22,18 @@
                     <button id="botRestart">Restart Bot</button>
                     <button id="botStop">Stop Bot</button>
                 </div>
+                <div class="action-log" id="actionLog">
+                </div>
             </div>
         </div>
         <div ng-app="songList">
             <div class="list" ng-controller="SongListController as songs">
+                <div class="list-controls">
+                    <label>
+                        <input type="checkbox" id="autoplayToggle"></input>
+                        Autoplay
+                    </label>
+                </div>
                 <div ng-repeat="song in songs.list" class="listitem">
                     {{song.song}}
                     <button class="removebtn" ng-hide="!songs.isAdmin"></button>

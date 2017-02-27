@@ -96,11 +96,33 @@ function skipSong(cb) {
     });
 }
 
-function popSong(id, playerKey) {
+function popSong(id, playerKey, cb) {
     post('/api/popSong', {
         playerId: id,
         playerKey: playerKey
     }, function (success, resp) {
+        cb(resp);
         console.log(success, resp);
     });
+}
+
+function setAutoplay(owner, enabled, cb) {
+    post('/api/setAutoplay', {
+        owner: owner,
+        enabled: enabled
+    }, function (success, resp) {
+        if (success) {
+            cb && cb();
+        } else {
+            alert(JSON.stringify(resp));
+        }
+    });
+}
+
+function getStatus(owner, cb) {
+    post('/api/getStatus', {
+        owner: owner
+    }, function (success, resp) {
+        cb(resp);
+    })
 }

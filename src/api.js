@@ -280,9 +280,31 @@ api.post('/togglePause', function (req, res) {
  *
  */
 api.post('/popSong', function (req, res) {
-    res.send({
-        success: queue.popSong(req.body.playerId, req.body.playerKey)
+    queue.popSong(req.body.playerId, req.body.playerKey, function (popped) {
+        res.send({
+            song: popped
+        });
     });
+});
+
+/**
+ * HTTP POST /api/setAutoplay
+ * {
+ *      channel: String,
+ *      enabled: Boolean
+ * }
+ *
+ */
+api.post('/setAutoplay', function (req, res) {
+    queue.setAutoplay(req.body.owner, req.body.enabled);
+
+     return res.send({
+        message: 'OK'
+    });
+});
+
+api.post('/getStatus', function (req, res) {
+     return res.send(queue.getStatus(req.body.owner));
 });
 
 module.exports = function(_config) {

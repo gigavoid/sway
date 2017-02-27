@@ -35,6 +35,10 @@ account.ready = function() {
         songList.list = songs;
         scope.$apply();
     });
+
+    socket.on('status-update', function (status) {
+        onStatusUpdate(status);
+    })
 };
 
 document.querySelector('#botStop').addEventListener('click', function (e) {
@@ -48,6 +52,24 @@ document.querySelector('#botRestart').addEventListener('click', function (e) {
         createBot('ts.ineentho.com');
     });
 });
+
+document.querySelector('#autoplayToggle').addEventListener('click', function (e) {
+    var enabled = this.checked;
+
+    setAutoplay(owner, enabled);
+});
+
+function onStatusUpdate (status) {
+    console.log(status, status.autoPlay)
+    document.querySelector('#autoplayToggle').checked = status.autoPlay;
+    document.querySelector('#actionLog').innerHTML = status.log.reverse().map(function (item) {
+        return JSON.stringify(item);
+    }).join('<br>');
+}
+
+getStatus(owner, function (status) {
+    onStatusUpdate(status);
+})
 
 document.querySelector('#playpause').addEventListener('click', function() { togglePause(); });
 document.querySelector('#skip').addEventListener('click', function() { skipSong(); });

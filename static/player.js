@@ -36,12 +36,14 @@ function pauseToggle() {
 
 function skip() {
     player.stopVideo();
+    playing = false;
     playNext();
 }
 
 socket.on('new-song', function(_songs) {
     songs = _songs;
     console.log('new-song', songs);
+    console.log('playing', playing)
 
 
     if (!playing && ready) {
@@ -53,18 +55,18 @@ function getNextSong() {
     return songs[0];
 }
 
-function popNextSong() {
-    popSong(owner, parseInt(key));
+function popNextSong(cb) {
+    popSong(owner, parseInt(key), cb);
 }
 
 function playNext() {
-    var song = getNextSong();
-    if (song) {
-        popNextSong();
-        play(song);
-    } else {
-        console.log('OUT OF SONGS');
-    }
+    popNextSong(function (resp) {
+        console.log('popped next song', resp);
+        if (resp.song) {
+            play(resp.song);
+        }
+    });
+        //play(song);
 }
 
 var playing = false
