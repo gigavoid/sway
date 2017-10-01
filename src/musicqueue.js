@@ -1,5 +1,5 @@
 var google = require('googleapis');
-var randomElement = require('./util/random.js');
+var randomElement = require('./util/random.js').randomElement;
 
 var youtube = google.youtube({
     version: 'v3',
@@ -86,7 +86,7 @@ queue.createBot = function (botName, key) {
 
     randomElement(initialSongs);
 
-    queues[botName].songs.push(randomElement(initialSongs));
+    queues[botName].songs.push(randomElement(initialSongs).song);
 };
 
 queue.removeBot = function (botName) {
