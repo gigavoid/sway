@@ -1,4 +1,5 @@
 var google = require('googleapis');
+var randomElement = require('./util/random.js');
 
 var youtube = google.youtube({
     version: 'v3',
@@ -8,6 +9,20 @@ var youtube = google.youtube({
 var queue = module.exports = {};
 
 var io, queues = {};
+
+var initialSongs = [{
+    weight: 1,
+    song: {
+        song: 'Ip7QZPw04Ks',
+        service: 'youtube'
+    }
+}, {
+    weight: 1,
+    song: {
+        song: 'MPWruWso93A',
+        service: 'youtube'
+    }
+}];
 
 function getRelated(videoId, cb) {
     youtube.search.list({
@@ -69,10 +84,9 @@ queue.createBot = function (botName, key) {
         log: []
     };
 
-    queues[botName].songs.push({
-        song: 'Ip7QZPw04Ks',
-        service: 'youtube'
-    });
+    randomElement(initialSongs);
+
+    queues[botName].songs.push(randomElement(initialSongs));
 };
 
 queue.removeBot = function (botName) {
