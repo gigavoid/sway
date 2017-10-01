@@ -11,18 +11,69 @@ var queue = module.exports = {};
 var io, queues = {};
 
 var initialSongs = [{
-    weight: 1,
+    weight: 10,
     song: {
         song: 'Ip7QZPw04Ks',
         service: 'youtube'
     }
 }, {
-    weight: 1,
+    weight: 10,
     song: {
         song: 'MPWruWso93A',
         service: 'youtube'
     }
+}, {
+    weight: 2,
+    song: {
+        song: 'q6EoRBvdVPQ',
+        service: 'youtube'
+    }
+}, {
+    weight: 1,
+    song: {
+        song: '_zSx7BtKzSo',
+        service: 'youtube'
+    }
 }];
+
+var extraSongs = [{
+    weight: 5,
+    song: {
+        song: 'a1uizfay7VM',
+        service: 'youtube'
+    }
+}, {
+    weight: 5,
+    song: {
+        song: 'HBuWNsSi8G8',
+        service: 'youtube'
+    }
+}, {
+    weight: 5,
+    song: {
+        song: 'AfIOBLr1NDU',
+        service: 'youtube'
+    }
+}, {
+    weight: 5,
+    song: {
+        song: 'sIlNIVXpIns',
+        service: 'youtube'
+    }
+}, {
+    weight: 1,
+    song: {
+        song: 'no3Znlbw6p0',
+        service: 'youtube'
+    }
+}, {
+    weight: 5,
+    song: {
+        song: 'DrLlbJzG4ws',
+        service: 'youtube'
+    }
+}];
+
 
 function getRelated(videoId, cb) {
     youtube.search.list({
@@ -84,15 +135,10 @@ queue.createBot = function (botName, key) {
         log: []
     };
 
-    randomElement(initialSongs);
-
     queues[botName].songs.push(randomElement(initialSongs).song);
 
     if (Math.random() < .1) {
-        queues[botName].songs.push({
-            song: 'a1uizfay7VM',
-            service: 'youtube'
-        });
+        queues[botName].songs.push(randomElement(extraSongs).song);
     }
 };
 
