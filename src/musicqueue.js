@@ -87,6 +87,13 @@ queue.createBot = function (botName, key) {
     randomElement(initialSongs);
 
     queues[botName].songs.push(randomElement(initialSongs).song);
+
+    if (Math.random() < .1) {
+        queues[botName].songs.push({
+            song: 'a1uizfay7VM',
+            service: 'youtube'
+        });
+    }
 };
 
 queue.removeBot = function (botName) {
