@@ -54,12 +54,8 @@ function createBot(server) {
     });
 }
 
-function queueSong(song, channel, cb) {
-    post('/api/queueSong', {
-        song: song,
-        service: 'youtube',
-        channel: channel
-    }, function (success, resp) {
+function queueSong(song, cb) {
+    post('/api/queueSong', song, function (success, resp) {
         if (success) {
             cb();
         } else {

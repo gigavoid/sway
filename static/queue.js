@@ -74,21 +74,62 @@ getStatus(owner, function (status) {
 document.querySelector('#playpause').addEventListener('click', function() { togglePause(); });
 document.querySelector('#skip').addEventListener('click', function() { skipSong(); });
 
+function getYoutubeVideo(url) {
+    var res = /\?v=([a-zA-Z0-9_-]*)/.exec(url);
+    
+    if (!res || res.length != 2) {
+        return;
+    }
+
+    return res[1];
+}
+
+function getYoutubePlaylist(url) {
+    var res = /[?&]list=([a-zA-Z0-9_-]*)/.exec(url);
+    
+    if (!res || res.length != 2) {
+        return;
+    }
+
+    return res[1];
+}
+
 document.querySelector('#addSong').addEventListener('submit', function (e) {
     e.preventDefault();
 
-    var song = document.querySelector('#linkbox').value;
-    
-    var res = /\?v=([a-zA-Z0-9_-]*)/.exec(song);
-    
-    if (!res || res.length != 2) {
-        return alert('Could not parse url');
+    var url = document.querySelector('#linkbox').value;
+
+    var ytPlaylist = getYoutubePlaylist(url);
+
+    if (ytPlaylist) {
+        var song = {
+            song: ytPlaylist,
+            service: 'youtube:playlist',
+            channel: owner
+        };
+        queueSong(song, function() {
+            document.querySelector('#linkbox').value = '';
+        });
+        return;
     }
 
-    var songId = res[1];
-    queueSong(songId, owner, function() {
-        document.querySelector('#linkbox').value = '';
-    });
+    var ytVideo = getYoutubeVideo(url);
+
+    if (ytVideo) {
+        var song = {
+            song: ytVideo,
+            service: 'youtube',
+            channel: owner
+        };
+        queueSong(song, function() {
+            document.querySelector('#linkbox').value = '';
+        });
+        return;
+    }
+
+    alert('Not a valid url youtube playlist or song');
+
+
 });
 
 var songList;

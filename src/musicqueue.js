@@ -147,13 +147,47 @@ queue.removeBot = function (botName) {
     delete queues[botName];
 }
 
+queue.addPlaylistSongs = function (botName, ytPlaylist) {
+    function getPage(pageToken) {
+        youtube.playlistItems.list({
+            playlistId: ytPlaylist,
+            part: 'contentDetails',
+            pageToken: pageToken
+        }, function (err, data) {
+            if (err) {
+                return;
+            }
+
+            data.items.forEach(function (item) {
+                var videoId = item.contentDetails.videoId;
+                var song = {
+                    song: videoId,
+                    service: 'youtube'
+                };
+                queues[botName].songs.push(song);
+                addLog(botName, {type: 'added-queue', song});
+                sendSongs(botName);
+            });
+
+            if (data.nextPageToken) {
+                getPage(data.nextPageToken);
+            }
+        });
+    }
+
+getPage();
+}
+
 queue.queueSong = function (botName, song) {
     if (!queues[botName]) return false;
-    queues[botName].songs.push(song);
+    if (song.service === 'youtube') {
+        queues[botName].songs.push(song);
+        addLog(botName, {type: 'added-queue', song});
+        sendSongs(botName);
+    } else if (song.service === 'youtube:playlist') {
+        queue.addPlaylistSongs(botName, song.song);
+    }
 
-    addLog(botName  , {type: 'added-queue', song});
-
-    sendSongs(botName);
     return true;
 }
 
@@ -207,6 +241,10 @@ function addLog (botName, obj) {
     if (q) {
         q.log.push(obj);
 
+        if (q.log.length > 100) {
+            q.log.shift();
+        }
+
         sendStatus(botName);
     }
 }
@@ -225,6 +263,10 @@ function sendSongs(botName) {
 queue.getStatus = function (botName) {
     console.log('getstatus', botName)
     var queue = queues[botName];
+
+    if (!queue) {
+        return {};
+    }
 
     return {
         autoPlay: queue.autoPlay,
