@@ -303,6 +303,22 @@ api.post('/setAutoplay', function (req, res) {
     });
 });
 
+/**
+ * HTTP POST /api/setAutoplay
+ * {
+ *      channel: String,
+ *      enabled: Boolean
+ * }
+ *
+ */
+api.post('/setAutoplaylist', function (req, res) {
+    queue.setAutoplaylist(req.body.owner, req.body.enabled);
+
+     return res.send({
+        message: 'OK'
+    });
+});
+
 api.post('/getStatus', function (req, res) {
      return res.send(queue.getStatus(req.body.owner));
 });

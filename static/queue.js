@@ -59,9 +59,15 @@ document.querySelector('#autoplayToggle').addEventListener('click', function (e)
     setAutoplay(owner, enabled);
 });
 
+document.querySelector('#autoplaylistToggle').addEventListener('click', function (e) {
+    var enabled = this.checked;
+
+    setAutoplaylist(owner, enabled);
+});
+
 function onStatusUpdate (status) {
-    console.log(status, status.autoPlay)
     document.querySelector('#autoplayToggle').checked = status.autoPlay;
+    document.querySelector('#autoplaylistToggle').checked = status.autoPlaylist;
     document.querySelector('#actionLog').innerHTML = status.log.reverse().map(function (item) {
         return JSON.stringify(item);
     }).join('<br>');

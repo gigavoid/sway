@@ -115,6 +115,19 @@ function setAutoplay(owner, enabled, cb) {
     });
 }
 
+function setAutoplaylist(owner, enabled, cb) {
+    post('/api/setAutoplaylist', {
+        owner: owner,
+        enabled: enabled
+    }, function (success, resp) {
+        if (success) {
+            cb && cb();
+        } else {
+            alert(JSON.stringify(resp));
+        }
+    });
+}
+
 function getStatus(owner, cb) {
     post('/api/getStatus', {
         owner: owner

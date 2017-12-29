@@ -1,5 +1,6 @@
 var google = require('googleapis');
 var randomElement = require('./util/random.js').randomElement;
+var _ = require('lodash');
 
 var youtube = google.youtube({
     version: 'v3',
@@ -73,6 +74,40 @@ var extraSongs = [{
         service: 'youtube'
     }
 }];
+
+function downloadPlaylist(ytPlaylist) {
+    return new Promise((resolve, reject) => {
+        const songs = [];
+        function getPage(pageToken) {
+            youtube.playlistItems.list({
+                playlistId: ytPlaylist,
+                part: 'contentDetails',
+                pageToken: pageToken
+            }, function (err, data) {
+                if (err) {
+                    return reject(err);
+                }
+
+                data.items.forEach(function (item) {
+                    var videoId = item.contentDetails.videoId;
+                    var song = {
+                        song: videoId,
+                        service: 'youtube'
+                    };
+                    songs.push(song);
+                });
+
+                if (data.nextPageToken) {
+                    getPage(data.nextPageToken);
+                } else {
+                    resolve(songs);
+                }
+            });
+        }
+
+        getPage();
+    });
+}
 
 
 function getRelated(videoId, cb) {
@@ -175,7 +210,7 @@ queue.addPlaylistSongs = function (botName, ytPlaylist) {
         });
     }
 
-getPage();
+    getPage();
 }
 
 queue.queueSong = function (botName, song) {
@@ -189,6 +224,26 @@ queue.queueSong = function (botName, song) {
     }
 
     return true;
+}
+
+function playNextAutoplaylist(q, playerId, playerKey, cb) {
+    let prepare;
+    if (!q.autoPlaylistCache || q.autoPlaylistCache.length === 0) {
+        addLog(playerId, {type: 'autoplaylist-downloading'});
+        prepare = downloadPlaylist('PL0GRra_mB_faMeUsOWltGjtaHsPlT06jW').then(songs => {
+            q.autoPlaylistCache = _.shuffle(songs);
+            addLog(playerId, {type: 'autoplaylist-downloaded', numberOfSongs: songs.length});
+        });
+
+    }
+
+    Promise.resolve(prepare).then(() => {
+        const song = q.autoPlaylistCache.pop();
+        q.songs.push(song);
+        addLog(playerId, {type: 'autoplaylist-added', song});
+        return queue.popSong(playerId, playerKey, cb);
+    });
+
 }
 
 queue.popSong = function (playerId, playerKey, cb) {
@@ -209,10 +264,16 @@ queue.popSong = function (playerId, playerKey, cb) {
         return;
     }
 
+    if (q.autoPlaylist) {
+        console.log('Autoplaylisting');
+
+        return playNextAutoplaylist(q, playerId, playerKey, cb);
+    }
+
     if (q.autoPlay && q.currentSong) {
         console.log('Autoplaying');
         
-        getRelated(q.currentSong.song, function (err, id) {
+        return getRelated(q.currentSong.song, function (err, id) {
             var song = {
                 song: id,
                 service: 'youtube'
@@ -230,6 +291,16 @@ queue.setAutoplay = function (botName, enabled) {
     console.log('setAutoplay', botName);
     if (queues[botName]) {
         queues[botName].autoPlay = enabled;
+        sendStatus(botName);
+        sendSongs(botName);
+    }
+}
+
+queue.setAutoplaylist = function (botName, enabled) {
+    console.log('setAutoplaylist', botName);
+    if (queues[botName]) {
+        queues[botName].autoPlaylist = enabled;
+        queues[botName].autoPlaylistCache = [];
         sendStatus(botName);
         sendSongs(botName);
     }
@@ -270,6 +341,7 @@ queue.getStatus = function (botName) {
 
     return {
         autoPlay: queue.autoPlay,
+        autoPlaylist: queue.autoPlaylist,
         log: queue.log
     };
 }
