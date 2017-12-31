@@ -147,6 +147,16 @@ button:active{
     animation: scroll-left 15s linear infinite;
 }
 
+.bulk-add {
+    display: block;
+    margin: 0 auto;
+    width: 500px;
+    height: 200px;
+    background-color: rgba(0, 0, 0, 0.60);
+    border: 0;
+    color: white;
+}
+
 @-moz-keyframes scroll-left {
     0%{-moz-transform: translateX(100%);}
     100%{-moz-transform: translateX(-100%);}

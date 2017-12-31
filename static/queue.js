@@ -100,6 +100,53 @@ function getYoutubePlaylist(url) {
     return res[1];
 }
 
+let bulkVisible = false;
+
+function toggleBulkAdd() {
+    bulkVisible = !bulkVisible;
+    document.querySelector('#bulkAddContainer').style.display = bulkVisible ? 'block' : 'none';
+}
+
+document.querySelector('#bulkAdd').addEventListener('click', function (e) {
+    e.preventDefault();
+    toggleBulkAdd();
+});
+
+document.querySelector('#bulkAddButton').addEventListener('click', function (e) {
+    e.preventDefault();
+    toggleBulkAdd();
+
+    var text = document.querySelector('#bulkAddTextarea').value;
+    document.querySelector('#bulkAddTextarea').value = '';
+
+    var videos = text.split('\n').reduce(function (res, line) {
+        var ytVideo = getYoutubeVideo(line);
+
+        // Try to find a ?v=XXX 
+        if (ytVideo) {
+            res.push(ytVideo);
+            return res;
+        }
+
+        // If not, take the first thing that could be an id
+        var regexRes = /([a-zA-Z0-9_-]+)/.exec(line);
+        if (regexRes) {
+            res.push(regexRes[1]);
+        }
+
+        return res;
+    }, []);
+
+    videos.forEach(function (ytVideo) {
+        var song = {
+            song: ytVideo,
+            service: 'youtube',
+            channel: owner
+        };
+        queueSong(song, function() {});
+    });
+});
+
 document.querySelector('#addSong').addEventListener('submit', function (e) {
     e.preventDefault();
 

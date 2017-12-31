@@ -309,6 +309,8 @@ queue.setAutoplaylist = function (botName, enabled) {
 function addLog (botName, obj) {
     var q = queues[botName];
 
+    obj.when = new Date();
+
     if (q) {
         q.log.push(obj);
 
