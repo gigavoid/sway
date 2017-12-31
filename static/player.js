@@ -59,14 +59,21 @@ function popNextSong(cb) {
     popSong(owner, parseInt(key), cb);
 }
 
+var playNextPending = false;
+
 function playNext() {
+    if (playNextPending) {
+        return;
+    }
+
+    playNextPending = true;
     popNextSong(function (resp) {
+        playNextPending = false; 
         console.log('popped next song', resp);
         if (resp.song) {
             play(resp.song);
         }
     });
-        //play(song);
 }
 
 var playing = false
@@ -119,6 +126,7 @@ function onPlayerReady(event) {
 //    The function indicates that when playing a video (state=1),
 //    the player should play for six seconds and then stop.
 function onPlayerStateChange(event) {
+    console.log('player state change', event);
     if (event.data == YT.PlayerState.ENDED) {
         playing = false;
         console.log('PLAYING: FALSE');

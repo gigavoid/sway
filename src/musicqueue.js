@@ -247,6 +247,7 @@ function playNextAutoplaylist(q, playerId, playerKey, cb) {
 }
 
 queue.popSong = function (playerId, playerKey, cb) {
+    console.log('play song');
     var q = queues[playerId];
     if (!q) return log('tried to pop song from invalid player id', playerId);
     if (q.key !== playerKey) return log('tried to pop song from invalid key', q.key);

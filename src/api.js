@@ -280,6 +280,7 @@ api.post('/togglePause', function (req, res) {
  *
  */
 api.post('/popSong', function (req, res) {
+    console.log('post popSong');
     queue.popSong(req.body.playerId, req.body.playerKey, function (popped) {
         res.send({
             song: popped
